@@ -1,0 +1,777 @@
+Configuración para los dispositivos:
+
+************************SWM1**********************
+enable
+configure terminal
+
+hostname SWM1
+no ip domain-lookup
+
+ip routing
+no ip cef
+
+vtp domain EMPRESA
+vtp mode server
+vtp version 2
+
+vlan 10
+ name DOCENTES
+vlan 20
+ name ESTUDIANTES
+vlan 30
+ name GESTION
+vlan 40
+ name VOZ
+vlan 99
+ name BLACKHULL
+exit
+
+spanning-tree mode rapid-pvst
+spanning-tree vlan 10,20,30,40,99 root primary
+
+interface range e0/1 - 3
+ description EtherChannel hacia SWM2
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ channel-group 1 mode active
+ no shutdown
+exit
+
+interface port-channel 1
+ description PORT-CHANNEL hacia SWM2
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/0
+ description TRUNK hacia SWAC1 DOCENTES
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/1
+ description TRUNK hacia SWAC2 ESTUDIANTES
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/2
+ description TRUNK hacia SWAC3 GESTION
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/0
+ description ENLACE L3 hacia R1-Core e0/2
+ no switchport
+ ip address 172.26.10.166 255.255.255.252
+ no shutdown
+exit
+
+interface vlan 20
+ description Gateway VLAN ESTUDIANTES
+ ip address 172.26.0.2 255.255.248.0
+ standby version 2
+ standby 20 ip 172.26.0.1
+ standby 20 priority 110
+ standby 20 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 10
+ description Gateway VLAN DOCENTES
+ ip address 172.26.8.2 255.255.255.0
+ standby version 2
+ standby 10 ip 172.26.8.1
+ standby 10 priority 110
+ standby 10 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 30
+ description Gateway VLAN GESTION
+ ip address 172.26.10.66 255.255.255.224
+ standby version 2
+ standby 30 ip 172.26.10.65
+ standby 30 priority 110
+ standby 30 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 40
+ description Gateway VLAN VOZ
+ ip address 172.26.10.98 255.255.255.224
+ standby version 2
+ standby 40 ip 172.26.10.97
+ standby 40 priority 110
+ standby 40 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 99
+ description Gateway VLAN BLACKHULL
+ ip address 172.26.10.130 255.255.255.240
+ standby version 2
+ standby 99 ip 172.26.10.129
+ standby 99 priority 110
+ standby 99 preempt
+ no ip redirects
+ no shutdown
+exit
+
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface default
+ no passive-interface e0/0
+ network 172.26.0.0 0.0.7.255 area 10
+ network 172.26.8.0 0.0.0.255 area 10
+ network 172.26.10.64 0.0.0.31 area 10
+ network 172.26.10.96 0.0.0.31 area 10
+ network 172.26.10.128 0.0.0.15 area 10
+ network 172.26.10.164 0.0.0.3 area 0
+exit
+
+end
+write memory
+************************SWM2**********************
+enable
+configure terminal
+
+hostname SWM2
+no ip domain-lookup
+
+ip routing
+no ip cef
+
+vtp domain EMPRESA
+vtp mode client
+vtp version 2
+
+spanning-tree mode rapid-pvst
+spanning-tree vlan 10,20,30,40,99 root secondary
+
+interface range e0/1 - 3
+ description EtherChannel hacia SWM1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ channel-group 1 mode active
+ no shutdown
+exit
+
+interface port-channel 1
+ description PORT-CHANNEL hacia SWM1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/0
+ description TRUNK hacia SWAC1 DOCENTES
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/1
+ description TRUNK hacia SWAC2 ESTUDIANTES
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e1/2
+ description TRUNK hacia SWAC3 GESTION
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/0
+ description ENLACE L3 hacia R1-Core e0/1
+ no switchport
+ ip address 172.26.10.170 255.255.255.252
+ no shutdown
+exit
+
+interface vlan 20
+ description Gateway VLAN ESTUDIANTES
+ ip address 172.26.0.3 255.255.248.0
+ standby version 2
+ standby 20 ip 172.26.0.1
+ standby 20 priority 100
+ standby 20 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 10
+ description Gateway VLAN DOCENTES
+ ip address 172.26.8.3 255.255.255.0
+ standby version 2
+ standby 10 ip 172.26.8.1
+ standby 10 priority 100
+ standby 10 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 30
+ description Gateway VLAN GESTION
+ ip address 172.26.10.67 255.255.255.224
+ standby version 2
+ standby 30 ip 172.26.10.65
+ standby 30 priority 100
+ standby 30 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 40
+ description Gateway VLAN VOZ
+ ip address 172.26.10.99 255.255.255.224
+ standby version 2
+ standby 40 ip 172.26.10.97
+ standby 40 priority 100
+ standby 40 preempt
+ no ip redirects
+ no shutdown
+exit
+
+interface vlan 99
+ description Gateway VLAN BLACKHULL
+ ip address 172.26.10.131 255.255.255.240
+ standby version 2
+ standby 99 ip 172.26.10.129
+ standby 99 priority 100
+ standby 99 preempt
+ no ip redirects
+ no shutdown
+exit
+
+router ospf 1
+ router-id 2.2.2.2
+ passive-interface default
+ no passive-interface e0/0
+ network 172.26.0.0 0.0.7.255 area 10
+ network 172.26.8.0 0.0.0.255 area 10
+ network 172.26.10.64 0.0.0.31 area 10
+ network 172.26.10.96 0.0.0.31 area 10
+ network 172.26.10.128 0.0.0.15 area 10
+ network 172.26.10.168 0.0.0.3 area 0
+exit
+
+end
+write memory
+************************SWAC1**********************
+enable
+configure terminal
+
+hostname SWAC1
+no ip domain-lookup
+
+vtp domain EMPRESA
+vtp mode client
+vtp version 2
+
+spanning-tree mode rapid-pvst
+
+interface e0/0
+ description TRUNK hacia SWM1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/1
+ description TRUNK hacia SWM2
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/2
+ description PC DOCENTES
+ switchport
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/3
+ description PUERTO NO USADO - BLACKHULL
+ switchport
+ switchport mode access
+ switchport access vlan 99
+ shutdown
+exit
+
+end
+write memory
+************************SWAC2**********************
+enable
+configure terminal
+
+hostname SWAC2
+no ip domain-lookup
+
+vtp domain EMPRESA
+vtp mode client
+vtp version 2
+
+spanning-tree mode rapid-pvst
+
+interface e0/0
+ description TRUNK hacia SWM1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/1
+ description TRUNK hacia SWM2
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/2
+ description PC ESTUDIANTES
+ switchport
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/3
+ description PUERTO NO USADO - BLACKHULL
+ switchport
+ switchport mode access
+ switchport access vlan 99
+ shutdown
+exit
+
+end
+write memory
+************************SWAC3**********************
+enable
+configure terminal
+
+hostname SWAC3
+no ip domain-lookup
+
+vtp domain EMPRESA
+vtp mode client
+vtp version 2
+
+spanning-tree mode rapid-pvst
+
+interface e0/0
+ description TRUNK hacia SWM1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/1
+ description TRUNK hacia SWM2
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40,99
+ no shutdown
+exit
+
+interface e0/2
+ description PC GESTION
+ switchport
+ switchport mode access
+ switchport access vlan 30
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/3
+ description PUERTO NO USADO - BLACKHULL
+ switchport
+ switchport mode access
+ switchport access vlan 99
+ shutdown
+exit
+
+end
+write memory
+************************SWA13**********************
+enable
+configure terminal
+
+hostname SWA13
+no ip domain-lookup
+
+vtp domain SUCURSAL
+vtp mode transparent
+vtp version 2
+
+vlan 50
+ name ACADEMICOS
+vlan 60
+ name FINANZAS
+vlan 199
+ name BLACKHULL_R2
+exit
+
+spanning-tree mode rapid-pvst
+
+interface e0/0
+ description TRUNK hacia R2 e0/0
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 50,60,199
+ no shutdown
+exit
+
+interface e0/1
+ description PC ACADEMICOS
+ switchport
+ switchport mode access
+ switchport access vlan 50
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/2
+ description PC FINANZAS
+ switchport
+ switchport mode access
+ switchport access vlan 60
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/3
+ description PUERTO NO USADO - BLACKHULL_R2
+ switchport
+ switchport mode access
+ switchport access vlan 199
+ shutdown
+exit
+
+end
+write memory
+************************SW-SERVICIOS**********************
+enable
+configure terminal
+
+hostname SW-SERVICIOS
+no ip domain-lookup
+
+vtp domain SUCURSAL
+vtp mode transparent
+vtp version 2
+
+vlan 70
+ name DATACENTER
+vlan 199
+ name BLACKHULL_R2
+exit
+
+spanning-tree mode rapid-pvst
+
+interface e0/0
+ description SERVIDOR DATACENTER
+ switchport
+ switchport mode access
+ switchport access vlan 70
+ spanning-tree portfast
+ no shutdown
+exit
+
+interface e0/1
+ description TRUNK hacia R2 e0/1
+ switchport
+ switchport mode trunk
+ switchport trunk allowed vlan 70,199
+ no shutdown
+exit
+
+interface range e0/2 - 3
+ description PUERTO NO USADO - BLACKHULL_R2
+ switchport
+ switchport mode access
+ switchport access vlan 199
+ shutdown
+exit
+
+end
+write memory
+************************R1-Core**********************
+enable
+configure terminal
+
+hostname R1-Core
+no ip domain-lookup
+
+interface e0/0
+ description ENLACE hacia ISP e0/0
+ ip address 172.26.10.173 255.255.255.252
+ no shutdown
+exit
+
+interface e0/1
+ description ENLACE L3 hacia SWM2 e0/0
+ ip address 172.26.10.169 255.255.255.252
+ no shutdown
+exit
+
+interface e0/2
+ description ENLACE L3 hacia SWM1 e0/0
+ ip address 172.26.10.165 255.255.255.252
+ no shutdown
+exit
+
+interface s1/0
+ description ENLACE SERIAL hacia R2 s1/0
+ ip address 172.26.10.161 255.255.255.252
+ no shutdown
+exit
+
+ip route 0.0.0.0 0.0.0.0 172.26.10.174
+
+router ospf 1
+ router-id 11.11.11.11
+ passive-interface default
+ no passive-interface e0/1
+ no passive-interface e0/2
+ no passive-interface s1/0
+ network 172.26.10.164 0.0.0.3 area 0
+ network 172.26.10.168 0.0.0.3 area 0
+ network 172.26.10.160 0.0.0.3 area 0
+ default-information originate
+exit
+
+end
+write memory
+************************R2**********************
+enable
+configure terminal
+
+hostname R2
+no ip domain-lookup
+
+interface s1/0
+ description ENLACE SERIAL hacia R1-Core s1/0
+ ip address 172.26.10.162 255.255.255.252
+ no shutdown
+exit
+
+interface e0/0
+ description TRUNK hacia SWA13
+ no shutdown
+exit
+
+interface e0/0.50
+ description Gateway VLAN ACADEMICOS
+ encapsulation dot1Q 50
+ ip address 172.26.9.1 255.255.255.128
+ no shutdown
+exit
+
+interface e0/0.60
+ description Gateway VLAN FINANZAS
+ encapsulation dot1Q 60
+ ip address 172.26.9.129 255.255.255.128
+ no shutdown
+exit
+
+interface e0/1
+ description TRUNK hacia SW-SERVICIOS
+ no shutdown
+exit
+
+interface e0/1.70
+ description Gateway VLAN DATACENTER
+ encapsulation dot1Q 70
+ ip address 172.26.10.1 255.255.255.192
+ no shutdown
+exit
+
+router ospf 1
+ router-id 22.22.22.22
+ passive-interface default
+ no passive-interface s1/0
+ network 172.26.10.160 0.0.0.3 area 0
+ network 172.26.9.0 0.0.0.127 area 20
+ network 172.26.9.128 0.0.0.127 area 20
+ network 172.26.10.0 0.0.0.63 area 20
+exit
+
+end
+write memory
+************************ISP**********************
+enable
+configure terminal
+
+hostname ISP
+no ip domain-lookup
+
+interface e0/0
+ description ENLACE hacia R1-Core e0/0
+ ip address 172.26.10.174 255.255.255.252
+ no shutdown
+exit
+
+interface loopback0
+ description INTERNET_SIMULADO_GOOGLE
+ ip address 8.8.8.8 255.255.255.255
+exit
+
+ip route 172.26.0.0 255.254.0.0 172.26.10.173
+
+end
+write memory
+
+IPs de PCs y servidor:
+
+************************DOC1**********************
+ip 172.26.8.10 255.255.255.0 172.26.8.1
+save
+************************EST1**********************
+ip 172.26.0.10 255.255.248.0 172.26.0.1
+save
+************************GES1**********************
+ip 172.26.10.70 255.255.255.224 172.26.10.65
+save
+************************ACA1**********************
+ip 172.26.9.10 255.255.255.128 172.26.9.1
+save
+************************FIN1**********************
+ip 172.26.9.140 255.255.255.128 172.26.9.129
+save
+************************FIN1**********************
+ip 172.26.9.140 255.255.255.128 172.26.9.129
+save
+************************SERVICIOS**********************
+ip 172.26.10.10 255.255.255.192 172.26.10.1
+save
+
+ACLs:
+ACL extendida: bloquear Estudiantes hacia Datacenter.
+************************SWM1**********************
+enable
+configure terminal
+
+access-list 101 deny ip 172.26.0.0 0.0.7.255 172.26.10.0 0.0.0.63
+access-list 101 permit ip any any
+
+interface vlan 20
+ ip access-group 101 in
+exit
+
+end
+write memory
+************************SWM2**********************
+enable
+configure terminal
+
+access-list 101 deny ip 172.26.0.0 0.0.7.255 172.26.10.0 0.0.0.63
+access-list 101 permit ip any any
+
+interface vlan 20
+ ip access-group 101 in
+exit
+
+end
+write memory
+
+LAS PRUEBAS SERIAN:
+*****EST1****
+ping 172.26.10.10 - debe fallar
+****EST1****
+ping 8.8.8.8 - Debe funcionar
+ping 172.26.8.10 - Debe funcionar
+ping 172.26.10.70 - Debe funcionar
+
+ACL estándar: solo Gestión puede administrar equipos.
+************R1-Core, R2, SWM1 y SWM2*************
+enable
+configure terminal
+
+access-list 10 permit 172.26.10.64 0.0.0.31
+access-list 10 deny any
+
+line vty 0 4
+ password cisco
+ login
+ access-class 10 in
+ transport input telnet
+exit
+
+end
+write memory
+
+Comandos de verificación:
+*************SWM1*********
+show standby brief
+show etherchannel summary
+show interfaces trunk
+show ip route
+show ip ospf neighbor
+show access-lists
+*************SWM2*********
+show standby brief
+show etherchannel summary
+show interfaces trunk
+show ip route
+show ip ospf neighbor
+show access-lists
+*************R1-Core*********
+show ip interface brief
+show ip route
+show ip ospf neighbor
+ping 8.8.8.8
+*************R2*********
+show ip interface brief
+show ip route
+show ip ospf neighbor
+ping 8.8.8.8
+************Switches de acceso*********
+show vlan brief
+show interfaces trunk
+show spanning-tree
+show vtp status
+************PCs****************
+***DOC1***
+ping 172.26.0.10
+ping 172.26.10.70
+ping 172.26.9.10
+ping 172.26.9.140
+ping 172.26.10.10
+ping 8.8.8.8
+***EST1, después de aplicar ACL****
+ping 172.26.10.10
+ping 8.8.8.8
+Lo ideal es - 172.26.10.10 = falla por ACL
+8.8.8.8 = responde
